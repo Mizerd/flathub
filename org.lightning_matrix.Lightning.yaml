@@ -8,10 +8,6 @@ sdk-extensions:
 
 command: lightning-matrix
 
-rename-desktop-file: lightning.desktop
-rename-appdata-file: lightning.metainfo.xml
-rename-icon: lightning
-
 finish-args:
   - --share=network
   - --share=ipc
@@ -32,41 +28,23 @@ build-options:
 
 modules:
   - name: lightning
-    buildsystem: simple
-    build-commands:
-      - cmake -S . -B build -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_INSTALL_PREFIX=/app
-        -DBUILD_TESTING=OFF
-        -DENABLE_RUST_SDK_BACKEND=ON
-        -DLIGHTNING_RUST_ONLY=ON
-        -DLIGHTNING_INSTALL_TYPE=linux-flatpak
-        -DLIGHTNING_ARTIFACT_KIND=release
-        -DLIGHTNING_ENABLE_WEBRTC=ON
-        -DLIGHTNING_REQUIRE_WEBRTC=ON
-        -DLIGHTNING_REQUIRE_GIF_KEYS=OFF
-        -DLIGHTNING_UPDATE_PUBKEY_2026A=pnNX0yQfhr66fpbMJ89MCNWkHVtfAr+WwI9c4OHzz50=
-      - cmake --build build -j ${FLATPAK_BUILDER_N_JOBS:-$(nproc)}
-      - cmake --install build
-
-      - install -Dm0644 LICENSE
-        /app/share/licenses/org.lightning_matrix.Lightning/LICENSE
-
-      - install -Dm0644 packaging-ci/packaging/common/lightning.metainfo.xml
-        /app/share/metainfo/lightning.metainfo.xml
-
-      - /app/bin/lightning-matrix --call-media-status > call-media-status.txt 2>&1 || true
-      - cat call-media-status.txt
-      - grep -qx 'call media engine built in: yes' call-media-status.txt
-
-      - /app/bin/lightning-matrix --build-info > build-info.txt 2>&1 || true
-      - cat build-info.txt
-      - grep -qx 'secret_store: libsecret' build-info.txt
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_TESTING=OFF
+      - -DENABLE_RUST_SDK_BACKEND=ON
+      - -DLIGHTNING_RUST_ONLY=ON
+      - -DLIGHTNING_INSTALL_TYPE=linux-flatpak
+      - -DLIGHTNING_ARTIFACT_KIND=release
+      - -DLIGHTNING_ENABLE_WEBRTC=ON
+      - -DLIGHTNING_REQUIRE_WEBRTC=ON
+      - -DLIGHTNING_REQUIRE_GIF_KEYS=OFF
+      - -DLIGHTNING_UPDATE_PUBKEY_2026A=pnNX0yQfhr66fpbMJ89MCNWkHVtfAr+WwI9c4OHzz50=
     sources:
       - type: git
         url: https://github.com/Mizerd/lightning.git
-        tag: v0.9.8
-        commit: c04ea54f5cae39612b1713ada3050ec78dbba182
+        tag: v0.9.9
+        commit: 54d1bdb18656c0bff622049310c8e47621873fa5
         x-checker-data:
           type: git
           tag-pattern: '^v([\d.]+)$'
